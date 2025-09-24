@@ -1,0 +1,59 @@
+{
+  "name": "shiftbay-monorepo",
+  "version": "1.0.0",
+  "description": "ShiftBay Employee Management System - Monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web", 
+    "apps/app"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "test": "./scripts/test.sh",
+    "test:docker": "./scripts/test.sh --docker",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "setup": "./scripts/dev.sh",
+    "api:dev": "npm run dev -w apps/api",
+    "api:test": "./scripts/test.sh --api",
+    "api:test:docker": "./scripts/test.sh --api --docker",
+    "web:dev": "npm run dev -w apps/web",
+    "web:build": "npm run build -w apps/web",
+    "web:test": "./scripts/test.sh --web",
+    "web:test:docker": "./scripts/test.sh --web --docker",
+    "app:start": "npm run start -w apps/app",
+    "app:test": "./scripts/test.sh --app",
+    "app:test:docker": "./scripts/test.sh --app --docker",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:test:up": "docker-compose -f docker-compose.test.yml up --build",
+    "docker:test:down": "docker-compose -f docker-compose.test.yml down -v"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.2",
+    "typescript": "~5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/shiftbay-monorepo.git"
+  },
+  "keywords": [
+    "employee-management",
+    "scheduling",
+    "payroll",
+    "monorepo",
+    "fastapi",
+    "react",
+    "react-native"
+  ],
+  "author": "ShiftBay Team",
+  "license": "MIT"
+}

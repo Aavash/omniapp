@@ -1,0 +1,30 @@
+{
+  "name": "@shiftbay/api",
+  "version": "1.0.0",
+  "description": "ShiftBay Backend API - FastAPI service for employee management",
+  "private": true,
+  "scripts": {
+    "dev": "uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "start": "uv run uvicorn app.main:app --host 0.0.0.0 --port 8000",
+    "test": "uv run python -m pytest",
+    "test:watch": "uv run python -m pytest --watch",
+    "test:coverage": "uv run python -m pytest --cov=app --cov-report=html --cov-report=term",
+    "lint": "uv run ruff check",
+    "lint:fix": "uv run ruff check --fix && uv run ruff format",
+    "format": "uv run ruff format",
+    "migrate": "uv run alembic upgrade head",
+    "migrate:create": "uv run alembic revision --autogenerate",
+    "docker:build": "docker build -t shiftbay-api .",
+    "docker:run": "docker-compose up",
+    "clean": "rm -rf __pycache__ .pytest_cache htmlcov .coverage"
+  },
+  "keywords": [
+    "fastapi",
+    "python",
+    "api",
+    "employee-management",
+    "postgresql"
+  ],
+  "author": "ShiftBay Team",
+  "license": "MIT"
+}

@@ -1,0 +1,37 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: pytest-fast
+        name: pytest-fast
+        entry: bash -c 'uv run python -m pytest tests/ -m "not slow and not integration" --tb=short'
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [commit]
+
+  - repo: local
+    hooks:
+      - id: pytest-changed
+        name: pytest-changed
+        entry: bash -c 'if [ -n "$(git diff --cached --name-only | grep "\.py$")" ]; then uv run python -m pytest tests/ --tb=short; fi'
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [push]

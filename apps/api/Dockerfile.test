@@ -1,0 +1,38 @@
+# Test Dockerfile for ShiftBay API
+FROM python:3.13-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Set the working directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock* ./
+
+# Install dependencies
+RUN uv sync --frozen
+
+# Copy the application code
+COPY . .
+
+# Set default environment variables for testing
+ENV DATABASE_URL=postgresql://testuser:testpass@postgres:5432/testdb
+ENV SECRET_KEY=test-secret-key-for-docker-tests
+ENV ALGORITHM=HS256
+ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
+ENV ENVIRONMENT=test
+
+# Default command runs tests
+CMD ["uv", "run", "python", "-m", "pytest", "--cov=app", "--cov-report=term-missing", "--cov-report=html", "-v"]

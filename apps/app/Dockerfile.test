@@ -1,0 +1,17 @@
+# Test Dockerfile for ShiftBay Mobile App
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Default command runs tests
+CMD ["sh", "-c", "npm run lint && npm run type-check && npm test"]
