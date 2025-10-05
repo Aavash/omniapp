@@ -8,7 +8,7 @@ RUN apk add --no-cache \
     linux-headers \
     postgresql-dev
 
-# Set environment to suppress hardlink warning
+# Set environment
 ENV UV_LINK_MODE=copy \
     UV_SYSTEM_PYTHON=1
 
@@ -27,14 +27,15 @@ RUN uv venv && \
 # Runtime stage
 FROM python:3.13-alpine
 
-# Install only runtime dependencies
+# Install runtime dependencies AND uv
 RUN apk update && \
     apk upgrade && \
     apk add --no-cache \
     libpq \
     libgcc \
     libstdc++ && \
-    rm -rf /var/cache/apk/*
+    rm -rf /var/cache/apk/* && \
+    pip install --no-cache-dir uv
 
 # Create non-root user
 RUN addgroup -g 1000 appgroup && \
@@ -60,4 +61,4 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
