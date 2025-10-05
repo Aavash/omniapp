@@ -1,25 +1,63 @@
-# Use an official Python runtime as a parent image
-FROM python:3.13-alpine
+# Build stage
+FROM python:3.13-alpine AS builder
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
+# Install build dependencies
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    linux-headers \
+    postgresql-dev
 
-# Install uv 
-RUN pip install --no-cache-dir uv 
+# Set environment to suppress hardlink warning
+ENV UV_LINK_MODE=copy \
+    UV_SYSTEM_PYTHON=1
 
-# Set the working directory in the container
+# Install uv
+RUN pip install --no-cache-dir uv
+
 WORKDIR /app
 
-# Copy pyproject.toml the working directory
-COPY pyproject.toml uv.lock* /app/
-# Install the dependencies
-RUN uv pip install --system -r pyproject.toml
+# Copy dependency files
+COPY pyproject.toml uv.lock* ./
 
-# Copy the current directory contents into the container at /app
-COPY . /app/
+# Create virtual environment and install dependencies
+RUN uv venv && \
+    uv pip install -r pyproject.toml
 
-# Expose port 8000 to the outside world
+# Runtime stage
+FROM python:3.13-alpine
+
+# Install only runtime dependencies
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache \
+    libpq \
+    libgcc \
+    libstdc++ && \
+    rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1000 appgroup && \
+    adduser -D -u 1000 -G appgroup appuser
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH" \
+    UV_LINK_MODE=copy
+
+WORKDIR /app
+
+# Copy virtual environment from builder
+COPY --from=builder --chown=appuser:appgroup /app/.venv .venv
+
+# Copy application code
+COPY --chown=appuser:appgroup . .
+
+# Switch to non-root user
+USER appuser
+
 EXPOSE 8000
 
-# Run the FastAPI server
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
